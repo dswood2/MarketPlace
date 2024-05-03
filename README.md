@@ -34,13 +34,13 @@ To run the Color Marketplace locally, follow these steps:
    - npm install
      
 5. Configure the Ethereum network:
-   
-  - Make sure you have MetaMask installed in your browser.
-  - Connect MetaMask to the desired Ethereum network (e.g., Sepolia testnet).
+
+   - Make sure you have MetaMask installed in your browser.
+   - Connect MetaMask to the desired Ethereum network (e.g., Sepolia testnet).
 
 4. Start the development server:
 
-   -npm start
+   - npm start
 
 5. Open the application in your browser:
 
