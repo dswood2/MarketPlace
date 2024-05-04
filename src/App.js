@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { mintNFT, buyNFT, setNFTPrice, toggleNFTSale, getNFTItem } from './MarketplaceContractNFT';
+import { mintNFT, buyNFT, setNFTPrice, toggleNFTSale, getNFTItem, updateConfirmationHash } from './MarketplaceContractNFT';
 import Web3 from 'web3';
 import './App.css';
 
@@ -16,6 +16,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [connectedAccount, setConnectedAccount] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
+  const [mintedNFTs, setMintedNFTs] = useState([]);
   const itemsPerPage = 9;
 
   useEffect(() => {
@@ -79,7 +80,10 @@ function App() {
     }
     try {
       const priceInWei = web3.utils.toWei(mintPrice, 'ether');
-      await mintNFT(priceInWei);
+      const result = await mintNFT(priceInWei);
+      const tokenId = result.events.NFTMinted.returnValues.tokenId;
+      const transactionHash = result.transactionHash;
+      await updateConfirmationHash(tokenId, transactionHash);
       fetchNFTItems();
       setMintPrice('');
     } catch (error) {
@@ -94,11 +98,9 @@ function App() {
     }
     try {
       const item = await getNFTItem(buyTokenId);
-      if (!item.forSale) {
-        alert('This color is not for sale.');
-        return;
-      }
-      await buyNFT(buyTokenId, item.price);
+      const result = await buyNFT(buyTokenId, item.price);
+      const transactionHash = result.transactionHash;
+      await updateConfirmationHash(buyTokenId, transactionHash);
       fetchNFTItems();
       setBuyTokenId('');
     } catch (error) {
@@ -118,7 +120,9 @@ function App() {
         return;
       }
       const priceInWei = web3.utils.toWei(newPrice, 'ether');
-      await setNFTPrice(setPriceTokenId, priceInWei);
+      const result = await setNFTPrice(setPriceTokenId, priceInWei);
+      const transactionHash = result.transactionHash;
+      await updateConfirmationHash(setPriceTokenId, transactionHash);
       fetchNFTItems();
       setSetPriceTokenId('');
       setNewPrice('');
@@ -138,7 +142,9 @@ function App() {
         alert('Only the owner can toggle the sale status.');
         return;
       }
-      await toggleNFTSale(toggleSaleTokenId);
+      const result = await toggleNFTSale(toggleSaleTokenId);
+      const transactionHash = result.transactionHash;
+      await updateConfirmationHash(toggleSaleTokenId, transactionHash);
       fetchNFTItems();
       setToggleSaleTokenId('');
     } catch (error) {
@@ -295,6 +301,7 @@ function App() {
                 <h3>Token ID: {item.tokenId.toString()}</h3>
                 <p>Price: {web3.utils.fromWei(item.price.toString(), 'ether')} ETH</p>
                 <p>For Sale: {item.forSale.toString()}</p>
+                <p>Confirmation Hash: {item.confirmationHash}</p>
               </div>
             </li>
           ))}
