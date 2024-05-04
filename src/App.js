@@ -73,6 +73,15 @@ function App() {
     }
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        alert('Transaction hash copied to clipboard!');
+      })
+      .catch((error) => {
+        console.error('Error copying transaction hash:', error);
+      });
+  };
   const handleMintNFT = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -293,31 +302,39 @@ function App() {
         </div>
       )}
         <section className="color-list-section">
-        <h2>Colors</h2>
-        <ul className="color-list">
-          {getPaginatedItems().map((item) => (
-            <li key={item.tokenId} className="color-item" style={{ backgroundColor: getRandomColor() }}>
-              <div className="color-item-content">
-                <h3>Token ID: {item.tokenId.toString()}</h3>
-                <p>Price: {web3.utils.fromWei(item.price.toString(), 'ether')} ETH</p>
-                <p>For Sale: {item.forSale.toString()}</p>
-                <p>Confirmation Hash: {item.confirmationHash}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button onClick={handlePreviousPage} disabled={currentPage === 1}>
-              Previous
-            </button>
-            <span>Page {currentPage} of {totalPages}</span>
-            <button onClick={handleNextPage} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </div>
-        )}
-      </section>
+          <h2>Colors</h2>
+          <ul className="color-list">
+            {getPaginatedItems().map((item) => (
+              <li key={item.tokenId} className="color-item" style={{ backgroundColor: getRandomColor() }}>
+                <div className="color-item-content">
+                  <h3>Token ID: {item.tokenId.toString()}</h3>
+                  <p>Price: {web3.utils.fromWei(item.price.toString(), 'ether')} ETH</p>
+                  <p>For Sale: {item.forSale.toString()}</p>
+                  <div className="confirmation-hash">
+                    <span>Confirmation Hash: {item.confirmationHash.slice(0, 10)}...</span>
+                    <button
+                      className="copy-button"
+                      onClick={() => copyToClipboard(item.confirmationHash)}
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+                Previous
+              </button>
+              <span>Page {currentPage} of {totalPages}</span>
+              <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+                Next
+              </button>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
