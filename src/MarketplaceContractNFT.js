@@ -2,7 +2,7 @@ import Web3 from 'web3';
 
 const web3 = new Web3(window.ethereum);
 
-const marketplaceContractAddress = '0x78BBAC334C96166c30A1C1eB20A87F0a3C9561Ad';
+const marketplaceContractAddress = '0x91558418Fe7d92ea3c41147B8bECDFD1043b0Fa1';
 const marketplaceContractABI = [
 	{
 		"inputs": [],
@@ -398,11 +398,6 @@ const marketplaceContractABI = [
 						"internalType": "bool",
 						"name": "forSale",
 						"type": "bool"
-					},
-					{
-						"internalType": "bytes32",
-						"name": "confirmationHash",
-						"type": "bytes32"
 					}
 				],
 				"internalType": "struct NFTMarketplace.NFTItem",
@@ -685,24 +680,6 @@ const marketplaceContractABI = [
 			}
 		],
 		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "tokenId",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bytes32",
-				"name": "confirmationHash",
-				"type": "bytes32"
-			}
-		],
-		"name": "updateConfirmationHash",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

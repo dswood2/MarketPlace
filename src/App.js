@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { mintNFT, buyNFT, setNFTPrice, toggleNFTSale, getNFTItem, updateConfirmationHash } from './MarketplaceContractNFT';
+import { mintNFT, buyNFT, setNFTPrice, toggleNFTSale, getNFTItem } from './MarketplaceContractNFT';
 import Web3 from 'web3';
 import './App.css';
+import TransactionPopup from './TransactionPopup';
 
 const web3 = new Web3(window.ethereum);
 
@@ -16,7 +17,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [connectedAccount, setConnectedAccount] = useState('');
   const [showConnectModal, setShowConnectModal] = useState(false);
-  const [mintedNFTs, setMintedNFTs] = useState([]);
+  const [transactionHash, setTransactionHash] = useState('');
+  const [showTransactionPopup, setShowTransactionPopup] = useState(false);
   const itemsPerPage = 9;
 
   useEffect(() => {
@@ -73,15 +75,6 @@ function App() {
     }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-      .then(() => {
-        alert('Transaction hash copied to clipboard!');
-      })
-      .catch((error) => {
-        console.error('Error copying transaction hash:', error);
-      });
-  };
   const handleMintNFT = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -90,9 +83,9 @@ function App() {
     try {
       const priceInWei = web3.utils.toWei(mintPrice, 'ether');
       const result = await mintNFT(priceInWei);
-      const tokenId = result.events.NFTMinted.returnValues.tokenId;
       const transactionHash = result.transactionHash;
-      await updateConfirmationHash(tokenId, transactionHash);
+      setTransactionHash(transactionHash);
+      setShowTransactionPopup(true);
       fetchNFTItems();
       setMintPrice('');
     } catch (error) {
@@ -107,16 +100,21 @@ function App() {
     }
     try {
       const item = await getNFTItem(buyTokenId);
+      if (!item.forSale) {
+        alert('This item is not for sale.');
+        return;
+      }
       const result = await buyNFT(buyTokenId, item.price);
       const transactionHash = result.transactionHash;
-      await updateConfirmationHash(buyTokenId, transactionHash);
+      setTransactionHash(transactionHash);
+      setShowTransactionPopup(true);
       fetchNFTItems();
       setBuyTokenId('');
     } catch (error) {
       console.error('Error buying NFT:', error);
     }
   };
-
+  
   const handleSetNFTPrice = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -125,13 +123,14 @@ function App() {
     try {
       const item = await getNFTItem(setPriceTokenId);
       if (item.owner.toLowerCase() !== connectedAccount.toLowerCase()) {
-        alert('Only the owner can set the price.');
+        alert('You can only set the price for items you own.');
         return;
       }
       const priceInWei = web3.utils.toWei(newPrice, 'ether');
       const result = await setNFTPrice(setPriceTokenId, priceInWei);
       const transactionHash = result.transactionHash;
-      await updateConfirmationHash(setPriceTokenId, transactionHash);
+      setTransactionHash(transactionHash);
+      setShowTransactionPopup(true);
       fetchNFTItems();
       setSetPriceTokenId('');
       setNewPrice('');
@@ -139,7 +138,7 @@ function App() {
       console.error('Error setting NFT price:', error);
     }
   };
-
+  
   const handleToggleNFTSale = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -148,12 +147,13 @@ function App() {
     try {
       const item = await getNFTItem(toggleSaleTokenId);
       if (item.owner.toLowerCase() !== connectedAccount.toLowerCase()) {
-        alert('Only the owner can toggle the sale status.');
+        alert('You can only toggle the sale status for items you own.');
         return;
       }
       const result = await toggleNFTSale(toggleSaleTokenId);
       const transactionHash = result.transactionHash;
-      await updateConfirmationHash(toggleSaleTokenId, transactionHash);
+      setTransactionHash(transactionHash);
+      setShowTransactionPopup(true);
       fetchNFTItems();
       setToggleSaleTokenId('');
     } catch (error) {
@@ -310,15 +310,6 @@ function App() {
                   <h3>Token ID: {item.tokenId.toString()}</h3>
                   <p>Price: {web3.utils.fromWei(item.price.toString(), 'ether')} ETH</p>
                   <p>For Sale: {item.forSale.toString()}</p>
-                  <div className="confirmation-hash">
-                    <span>Confirmation Hash: {item.confirmationHash.slice(0, 10)}...</span>
-                    <button
-                      className="copy-button"
-                      onClick={() => copyToClipboard(item.confirmationHash)}
-                    >
-                      Copy
-                    </button>
-                  </div>
                 </div>
               </li>
             ))}
@@ -336,6 +327,12 @@ function App() {
           )}
         </section>
       </main>
+      {showTransactionPopup && (
+        <TransactionPopup
+          transactionHash={transactionHash}
+          onClose={() => setShowTransactionPopup(false)}
+        />
+      )}
     </div>
   );
 }
