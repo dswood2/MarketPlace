@@ -26,7 +26,7 @@ To run the Color Marketplace locally, follow these steps:
 
 1. Clone the repository:
    
-   - git clone https://github.com/your-username/MarketPlace.git
+   - git clone https://github.com/dswood2/MarketPlace.git
      
 3. Install the dependencies:
    
