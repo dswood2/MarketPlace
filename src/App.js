@@ -21,10 +21,12 @@ function App() {
   const [showTransactionPopup, setShowTransactionPopup] = useState(false);
   const itemsPerPage = 9;
 
+  // Fetch NFT items on component mount
   useEffect(() => {
     fetchNFTItems();
   }, []);
 
+  // Function to fetch NFT items from the smart contract
   const fetchNFTItems = async () => {
     try {
       const items = [];
@@ -41,6 +43,7 @@ function App() {
     }
   };
 
+  // Function to connect the user's wallet
   const connectWallet = async () => {
     try {
       await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -52,6 +55,7 @@ function App() {
     }
   };
 
+  // Function to handle different actions based on the selected section
   const handleAction = (action) => {
     if (!connectedAccount) {
       setShowConnectModal(true);
@@ -75,6 +79,7 @@ function App() {
     }
   };
 
+  // Function to handle minting a new NFT
   const handleMintNFT = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -93,6 +98,7 @@ function App() {
     }
   };
 
+  // Function to handle buying an NFT
   const handleBuyNFT = async () => {
     if (!connectedAccount) {
       setShowConnectModal(true);
@@ -115,6 +121,7 @@ function App() {
     }
   };
   
+  // Function to handle setting the price of an NFT
   const handleSetNFTPrice = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -139,6 +146,7 @@ function App() {
     }
   };
   
+  // Function to handle toggling the sale status of an NFT
   const handleToggleNFTSale = async () => {
     if (!connectedAccount) {
       alert('Please connect your wallet first.');
@@ -160,7 +168,8 @@ function App() {
       console.error('Error toggling NFT sale:', error);
     }
   };
-
+  
+  // Function to generate a random color for NFT items
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -170,26 +179,31 @@ function App() {
     return color;
   };
 
+  // Pagination variables
   const totalPages = Math.ceil(nftItems.length / itemsPerPage);
 
+  // Function to handle going to the previous page
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
+  // Function to handle going to the next page
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
     }
   };
 
+  // Function to get the paginated NFT items for the current page
   const getPaginatedItems = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return nftItems.slice(startIndex, endIndex);
   };
 
+  // Render the UI
   return (
     <div className="app">
       <header className="app-header">
